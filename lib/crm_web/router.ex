@@ -18,6 +18,16 @@ defmodule CrmWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+
+    live "/clientes", ClienteLive.Index, :index
+    live "/clientes/new", ClienteLive.Form, :new
+    live "/clientes/:id", ClienteLive.Show, :show
+    live "/clientes/:id/edit", ClienteLive.Form, :edit
+
+    live "/oportunidades", OportunidadLive.Index, :index
+    live "/oportunidades/new", OportunidadLive.Form, :new
+    live "/oportunidades/:id", OportunidadLive.Show, :show
+    live "/oportunidades/:id/edit", OportunidadLive.Form, :edit
   end
 
   # Other scopes may use custom stacks.
