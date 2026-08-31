@@ -32,7 +32,7 @@ defmodule CrmWeb.OportunidadLiveTest do
                |> render_click()
                |> follow_redirect(conn, ~p"/oportunidades/new")
 
-      assert render(form_live) =~ "New Oportunidad"
+      assert render(form_live) =~ "Nueva oportunidad"
 
       assert form_live
              |> form("#oportunidad-form", oportunidad: @invalid_attrs)
@@ -45,7 +45,7 @@ defmodule CrmWeb.OportunidadLiveTest do
                |> follow_redirect(conn, ~p"/oportunidades")
 
       html = render(index_live)
-      assert html =~ "Oportunidad created successfully"
+      assert html =~ "Oportunidad creada correctamente"
       assert html =~ "some titulo"
     end
 
@@ -58,7 +58,7 @@ defmodule CrmWeb.OportunidadLiveTest do
                |> render_click()
                |> follow_redirect(conn, ~p"/oportunidades/#{oportunidad}/edit")
 
-      assert render(form_live) =~ "Edit Oportunidad"
+      assert render(form_live) =~ "Editar oportunidad"
 
       assert form_live
              |> form("#oportunidad-form", oportunidad: @invalid_attrs)
@@ -71,7 +71,7 @@ defmodule CrmWeb.OportunidadLiveTest do
                |> follow_redirect(conn, ~p"/oportunidades")
 
       html = render(index_live)
-      assert html =~ "Oportunidad updated successfully"
+      assert html =~ "Oportunidad actualizada correctamente"
       assert html =~ "some updated titulo"
     end
 
@@ -102,7 +102,7 @@ defmodule CrmWeb.OportunidadLiveTest do
                |> render_click()
                |> follow_redirect(conn, ~p"/oportunidades/#{oportunidad}/edit?return_to=show")
 
-      assert render(form_live) =~ "Edit Oportunidad"
+      assert render(form_live) =~ "Editar oportunidad"
 
       assert form_live
              |> form("#oportunidad-form", oportunidad: @invalid_attrs)
@@ -115,7 +115,7 @@ defmodule CrmWeb.OportunidadLiveTest do
                |> follow_redirect(conn, ~p"/oportunidades/#{oportunidad}")
 
       html = render(show_live)
-      assert html =~ "Oportunidad updated successfully"
+      assert html =~ "Oportunidad actualizada correctamente"
       assert html =~ "some updated titulo"
     end
   end

@@ -10,7 +10,7 @@ defmodule CrmWeb.OportunidadLive.Form do
     <Layouts.app flash={@flash}>
       <.header>
         {@page_title}
-        <:subtitle>Use this form to manage oportunidad records in your database.</:subtitle>
+        <:subtitle>Alta y edición de oportunidades.</:subtitle>
       </.header>
 
       <.form for={@form} id="oportunidad-form" phx-change="validate" phx-submit="save">
@@ -19,8 +19,8 @@ defmodule CrmWeb.OportunidadLive.Form do
         <.input field={@form[:etapa]} type="text" label="Etapa" />
         <.input field={@form[:fecha_cierre_estimada]} type="date" label="Fecha cierre estimada" />
         <footer>
-          <.button phx-disable-with="Saving..." variant="primary">Save Oportunidad</.button>
-          <.button navigate={return_path(@return_to, @oportunidad)}>Cancel</.button>
+          <.button phx-disable-with="Guardando..." variant="primary">Guardar</.button>
+          <.button navigate={return_path(@return_to, @oportunidad)}>Cancelar</.button>
         </footer>
       </.form>
     </Layouts.app>
@@ -42,7 +42,7 @@ defmodule CrmWeb.OportunidadLive.Form do
     oportunidad = Oportunidades.get_oportunidad!(id)
 
     socket
-    |> assign(:page_title, "Edit Oportunidad")
+    |> assign(:page_title, "Editar oportunidad")
     |> assign(:oportunidad, oportunidad)
     |> assign(:form, to_form(Oportunidades.change_oportunidad(oportunidad)))
   end
@@ -51,7 +51,7 @@ defmodule CrmWeb.OportunidadLive.Form do
     oportunidad = %Oportunidad{}
 
     socket
-    |> assign(:page_title, "New Oportunidad")
+    |> assign(:page_title, "Nueva oportunidad")
     |> assign(:oportunidad, oportunidad)
     |> assign(:form, to_form(Oportunidades.change_oportunidad(oportunidad)))
   end
@@ -71,7 +71,7 @@ defmodule CrmWeb.OportunidadLive.Form do
       {:ok, oportunidad} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Oportunidad updated successfully")
+         |> put_flash(:info, "Oportunidad actualizada correctamente")
          |> push_navigate(to: return_path(socket.assigns.return_to, oportunidad))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -84,7 +84,7 @@ defmodule CrmWeb.OportunidadLive.Form do
       {:ok, oportunidad} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Oportunidad created successfully")
+         |> put_flash(:info, "Oportunidad creada correctamente")
          |> push_navigate(to: return_path(socket.assigns.return_to, oportunidad))}
 
       {:error, %Ecto.Changeset{} = changeset} ->
