@@ -19,7 +19,7 @@ defmodule CrmWeb.OportunidadLiveTest do
     test "lists all oportunidades", %{conn: conn, oportunidad: oportunidad} do
       {:ok, _index_live, html} = live(conn, ~p"/oportunidades")
 
-      assert html =~ "Listing Oportunidades"
+      assert html =~ "Oportunidades"
       assert html =~ oportunidad.titulo
     end
 
@@ -28,7 +28,7 @@ defmodule CrmWeb.OportunidadLiveTest do
 
       assert {:ok, form_live, _} =
                index_live
-               |> element("a", "New Oportunidad")
+               |> element("a", "Nueva oportunidad")
                |> render_click()
                |> follow_redirect(conn, ~p"/oportunidades/new")
 
@@ -78,7 +78,7 @@ defmodule CrmWeb.OportunidadLiveTest do
     test "deletes oportunidad in listing", %{conn: conn, oportunidad: oportunidad} do
       {:ok, index_live, _html} = live(conn, ~p"/oportunidades")
 
-      assert index_live |> element("#oportunidades-#{oportunidad.id} a", "Delete") |> render_click()
+      assert index_live |> element("#oportunidades-#{oportunidad.id} a", "Eliminar") |> render_click()
       refute has_element?(index_live, "#oportunidades-#{oportunidad.id}")
     end
   end
@@ -89,7 +89,7 @@ defmodule CrmWeb.OportunidadLiveTest do
     test "displays oportunidad", %{conn: conn, oportunidad: oportunidad} do
       {:ok, _show_live, html} = live(conn, ~p"/oportunidades/#{oportunidad}")
 
-      assert html =~ "Show Oportunidad"
+      assert html =~ "Oportunidad #{oportunidad.id}"
       assert html =~ oportunidad.titulo
     end
 

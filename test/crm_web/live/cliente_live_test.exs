@@ -19,7 +19,7 @@ defmodule CrmWeb.ClienteLiveTest do
     test "lists all clientes", %{conn: conn, cliente: cliente} do
       {:ok, _index_live, html} = live(conn, ~p"/clientes")
 
-      assert html =~ "Listing Clientes"
+      assert html =~ "Clientes"
       assert html =~ cliente.nombre
     end
 
@@ -28,11 +28,11 @@ defmodule CrmWeb.ClienteLiveTest do
 
       assert {:ok, form_live, _} =
                index_live
-               |> element("a", "New Cliente")
+               |> element("a", "Nuevo cliente")
                |> render_click()
                |> follow_redirect(conn, ~p"/clientes/new")
 
-      assert render(form_live) =~ "New Cliente"
+      assert render(form_live) =~ "Nuevo cliente"
 
       assert form_live
              |> form("#cliente-form", cliente: @invalid_attrs)
@@ -45,7 +45,7 @@ defmodule CrmWeb.ClienteLiveTest do
                |> follow_redirect(conn, ~p"/clientes")
 
       html = render(index_live)
-      assert html =~ "Cliente created successfully"
+      assert html =~ "Cliente creado correctamente"
       assert html =~ "some nombre"
     end
 
@@ -58,7 +58,7 @@ defmodule CrmWeb.ClienteLiveTest do
                |> render_click()
                |> follow_redirect(conn, ~p"/clientes/#{cliente}/edit")
 
-      assert render(form_live) =~ "Edit Cliente"
+      assert render(form_live) =~ "Editar cliente"
 
       assert form_live
              |> form("#cliente-form", cliente: @invalid_attrs)
@@ -71,14 +71,14 @@ defmodule CrmWeb.ClienteLiveTest do
                |> follow_redirect(conn, ~p"/clientes")
 
       html = render(index_live)
-      assert html =~ "Cliente updated successfully"
+      assert html =~ "Cliente actualizado correctamente"
       assert html =~ "some updated nombre"
     end
 
     test "deletes cliente in listing", %{conn: conn, cliente: cliente} do
       {:ok, index_live, _html} = live(conn, ~p"/clientes")
 
-      assert index_live |> element("#clientes-#{cliente.id} a", "Delete") |> render_click()
+      assert index_live |> element("#clientes-#{cliente.id} a", "Eliminar") |> render_click()
       refute has_element?(index_live, "#clientes-#{cliente.id}")
     end
   end
@@ -89,7 +89,7 @@ defmodule CrmWeb.ClienteLiveTest do
     test "displays cliente", %{conn: conn, cliente: cliente} do
       {:ok, _show_live, html} = live(conn, ~p"/clientes/#{cliente}")
 
-      assert html =~ "Show Cliente"
+      assert html =~ "Cliente #{cliente.id}"
       assert html =~ cliente.nombre
     end
 
@@ -102,7 +102,7 @@ defmodule CrmWeb.ClienteLiveTest do
                |> render_click()
                |> follow_redirect(conn, ~p"/clientes/#{cliente}/edit?return_to=show")
 
-      assert render(form_live) =~ "Edit Cliente"
+      assert render(form_live) =~ "Editar cliente"
 
       assert form_live
              |> form("#cliente-form", cliente: @invalid_attrs)
@@ -115,7 +115,7 @@ defmodule CrmWeb.ClienteLiveTest do
                |> follow_redirect(conn, ~p"/clientes/#{cliente}")
 
       html = render(show_live)
-      assert html =~ "Cliente updated successfully"
+      assert html =~ "Cliente actualizado correctamente"
       assert html =~ "some updated nombre"
     end
   end
