@@ -64,9 +64,7 @@ jobs:
   # Solo corre si "validate" pasó. Mismo patrón que metadata_stack (ver
   # ese repo, .github/workflows/ci.yml): arma la imagen con el Dockerfile
   # de "mix phx.gen.release --docker" y la publica en GitHub Container
-  # Registry -- Panel Control (metadata_stack) la toma de ahí por su
-  # propio "Detectar puerto/variables", no hace falta ningún paso de
-  # deploy en este workflow.
+  # Registry.
   build-image:
     needs: validate
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -98,3 +96,38 @@ jobs:
           tags: |
             ghcr.io/${{ env.IMAGE_NAME }}:latest
             ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+  # Solo corre si "build-image" publicó la imagen nueva. Actualiza el
+  # Deployment "crm" en el namespace "panel-control" (dado de alta a mano
+  # desde Panel Control, 2026-08-31 -- ver metadata_stack,
+  # MetadataApp.PanelControl.Desplegador) y corre las migraciones --
+  # mismo patrón que el job "deploy" de metadata_stack, pero apuntando a
+  # este namespace/deployment y usando /app/bin/migrate (no existe un
+  # "setup" acá, solo el que genera "mix phx.gen.release --docker").
+  # Requiere 3 secrets en el repo (Settings -> Secrets and variables ->
+  # Actions): DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY (privada, ed25519,
+  # dedicada a este deploy) -- ninguno vive acá ni en ningún archivo
+  # versionado, el repo es público.
+  deploy:
+    needs: build-image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Actualizar crm en k3s y migrar
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            set -e
+            sudo k3s kubectl rollout restart deployment/crm -n panel-control
+            sudo k3s kubectl rollout status deployment/crm -n panel-control --timeout=120s
+
+            POD=$(sudo k3s kubectl get pod -n panel-control -l app=crm -o jsonpath='{.items[0].metadata.name}')
+            if [ -z "$POD" ]; then
+              echo "No se encontró el pod de crm, no se pudo migrar"
+              exit 1
+            fi
+            sudo k3s kubectl exec -n panel-control "$POD" -- /app/bin/migrate
