@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  ELIXIR_VERSION: "1.18.4"
+  OTP_VERSION: "28.1"
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      MIX_ENV: test
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: crm_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: |
+            deps
+            _build
+          key: ${{ runner.os }}-mix-${{ hashFiles('mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Instalar dependencias
+        run: mix deps.get
+
+      - name: Crear y migrar base de test
+        run: |
+          mix ecto.create
+          mix ecto.migrate
+
+      - name: Compilar sin warnings
+        run: mix compile --warning-as-errors
+
+      - name: Test
+        run: mix test
+
+  # Solo corre si "validate" pasó. Mismo patrón que metadata_stack (ver
+  # ese repo, .github/workflows/ci.yml): arma la imagen con el Dockerfile
+  # de "mix phx.gen.release --docker" y la publica en GitHub Container
+  # Registry -- Panel Control (metadata_stack) la toma de ahí por su
+  # propio "Detectar puerto/variables", no hace falta ningún paso de
+  # deploy en este workflow.
+  build-image:
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Nombre de imagen para ghcr.io (minúsculas, sin separador final)
+        run: |
+          repo="${GITHUB_REPOSITORY,,}"
+          repo="${repo%[-._]}"
+          echo "IMAGE_NAME=$repo" >> "$GITHUB_ENV"
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
